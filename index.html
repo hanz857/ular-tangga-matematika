@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ular Tangga Matematika</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f9;
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(6, 50px);
+            grid-template-rows: repeat(5, 50px);
+            gap: 5px;
+            justify-content: center;
+            margin: 20px auto;
+        }
+        .cell {
+            width: 50px;
+            height: 50px;
+            background-color: #ddd;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #999;
+        }
+        .snake { background-color: #ff4c4c; }
+        .ladder { background-color: #4caf50; }
+        #dice {
+            font-size: 24px;
+            margin: 20px;
+        }
+        #question {
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Ular Tangga Matematika</h1>
+<div class="board" id="board"></div>
+<button id="rollDice">Lempar Dadu</button>
+<div id="dice">Dadu: </div>
+<div id="position">Posisi: 0</div>
+<div id="question"></div>
+<input type="text" id="answer" placeholder="Jawaban">
+<button id="submitAnswer">Submit Jawaban</button>
+
+<script>
+    const boardSize = 30;
+    const snake = { 14: 7, 22: 3 };
+    const ladder = { 5: 12, 18: 24 };
+    let position = 0;
+
+    function initializeBoard() {
+        const board = document.getElementById('board');
+        for (let i = 1; i <= boardSize; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            if (snake[i]) cell.classList.add('snake');
+            if (ladder[i]) cell.classList.add('ladder');
+            cell.textContent = i;
+            board.appendChild(cell);
+        }
+    }
+
+    function rollDice() {
+        return Math.floor(Math.random() * 6) + 1;
+    }
+
+    function generateQuestion(level) {
+        let a, b, c, d, question, answer;
+        switch (level) {
+            case 1:
+                a = Math.floor(Math.random() * 10) + 1;
+                b = Math.floor(Math.random() * 10) + 1;
+                question = `Jika x + ${b} = ${a + b}, maka x = ?`;
+                answer = a;
+                break;
+            case 2:
+                a = Math.floor(Math.random() * 10) + 1;
+                b = Math.floor(Math.random() * 10) + 1;
+                c = Math.floor(Math.random() * 10) + 1;
+                question = `Jika 2x - ${b} = ${a + c}, maka x = ?`;
+                answer = (a + c + b) / 2;
+                break;
+            case 3:
+                a = Math.floor(Math.random() * 10) + 1;
+                b = Math.floor(Math.random() * 10) + 1;
+                c = Math.floor(Math.random() * 10) + 1;
+                question = `Jika x^2 + ${b}x = ${a + c}, maka x = ?`;
+                answer = (Math.sqrt(a + c - b * b) - b) / 2;
+                break;
+            case 4:
+                a = Math.floor(Math.random() * 10) + 1;
+                b = Math.floor(Math.random() * 10) + 1;
+                c = Math.floor(Math.random() * 10) + 1;
+                d = Math.floor(Math.random() * 10) + 1;
+                question = `Jika (x - ${b})(x + ${c}) = ${a * d}, maka x = ?`;
+                answer = a / d + b - c;
+                break;
+            default:
+                a = Math.floor(Math.random() * 10) + 1;
+                b = Math.floor(Math.random() * 10) + 1;
+                c = Math.floor(Math.random() * 10) + 1;
+                question = `Jika x/2 + ${b} = ${a - c}, maka x = ?`;
+                answer = 2 * (a - c - b);
+                break;
+        }
+        return { question, answer };
+    }
+
+    document.getElementById('rollDice').addEventListener('click', () => {
+        const dice = rollDice();
+        position += dice;
+        document.getElementById('dice').textContent = `Dadu: ${dice}`;
+        document.getElementById('position').textContent = `Posisi: ${position}`;
+
+        if (position in snake) {
+            alert('Kena ular! Turun...');
+            position = snake[position];
+        } else if (position in ladder) {
+            alert('Naik tangga! Naik...');
+            position = ladder[position];
+        }
+
+        if (position >= boardSize) {
+            alert('Selamat, kamu menang!');
+            position = boardSize;
+            document.getElementById('position').textContent = `Posisi: ${position}`;
+            return;
+        }
+
+        const level = Math.floor(position / 7) + 1;
+        const { question, answer } = generateQuestion(level);
+        document.getElementById('question').textContent = question;
+
+        document.getElementById('submitAnswer').onclick = () => {
+            const userAnswer = parseFloat(document.getElementById('answer').value);
+            if (userAnswer === answer) {
+                alert('Jawaban benar! Lanjutkan.');
+            } else {
+                alert('Jawaban salah! Kembali ke posisi sebelumnya.');
+                position -= dice;
+                document.getElementById('position').textContent = `Posisi: ${position}`;
+            }
+            document.getElementById('answer').value = '';
+        };
+    });
+
+    initializeBoard();
+</script>
+
+</body>
+</html>
